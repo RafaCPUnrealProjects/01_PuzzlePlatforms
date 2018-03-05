@@ -26,4 +26,10 @@ protected:
 	
 	UPROPERTY(EditAnywhere, meta=(MakeEditWidget=true), Category = "MovingPlatform")
 	FVector TargetLocation;
+
+private:
+
+	FVector GlobalStartLocation;
+
+	FVector GlobalTargetLocation;
 };
