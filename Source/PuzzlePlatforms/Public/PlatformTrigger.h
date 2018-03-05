@@ -7,6 +7,7 @@
 #include "PlatformTrigger.generated.h"
 
 class UBoxComponent;
+class AMovingPlatform;
 
 UCLASS()
 class PUZZLEPLATFORMS_API APlatformTrigger : public AActor
@@ -20,6 +21,15 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	UFUNCTION()
+	void OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
+
+	UFUNCTION()
+	void OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	UPROPERTY(EditAnywhere, Category = "PlatformTrigger")
+	TArray<AMovingPlatform*> PlatformsToTrigger;
 
 public:	
 	// Called every frame
