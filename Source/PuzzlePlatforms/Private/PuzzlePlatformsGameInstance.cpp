@@ -6,6 +6,8 @@
 #include "PlatformTrigger.h"
 #include "UserWidget.h"
 #include "MenuSystem/MainMenu.h"
+#include "MenuSystem/InGameMenu.h"
+#include "MenuSystem/MenuWidget.h"
 
 
 
@@ -15,6 +17,10 @@ UPuzzlePlatformsGameInstance::UPuzzlePlatformsGameInstance(const FObjectInitiali
 	ConstructorHelpers::FClassFinder<UUserWidget> MenuBPClass(TEXT("/Game/MenuSystem/WBP_MainMenu"));
 	if (!ensure(MenuBPClass.Class != nullptr)) return;
 	MenuClass = MenuBPClass.Class;
+
+	ConstructorHelpers::FClassFinder<UUserWidget> InGameMenuBPClass(TEXT("/Game/MenuSystem/WBP_InGameMenu"));
+	if (!ensure(InGameMenuBPClass.Class != nullptr)) return;
+	InGameMenuClass = InGameMenuBPClass.Class;
 }
 
 void UPuzzlePlatformsGameInstance::Init()
@@ -22,17 +28,28 @@ void UPuzzlePlatformsGameInstance::Init()
 	Super::Init();
 
 	UE_LOG(LogTemp, Warning, TEXT("Found class %s"), *MenuClass->GetName());
+	UE_LOG(LogTemp, Warning, TEXT("Found class %s"), *InGameMenuClass->GetName());
 
 }
 
 void UPuzzlePlatformsGameInstance::LoadMenu()
 {
 	if (!ensure(MenuClass != nullptr)) return;
-	UMainMenu* Menu = CreateWidget<UMainMenu>(this, MenuClass);
+	Menu = CreateWidget<UMainMenu>(this, MenuClass);
 	if (!ensure(Menu != nullptr)) return;
 	
 	Menu->SetMenuInterface(this);
 	Menu->Setup();
+}
+
+void UPuzzlePlatformsGameInstance::InGameMenu()
+{
+	if (!ensure(MenuClass != nullptr)) return;
+	UMenuWidget* InGameMenu = CreateWidget<UMenuWidget>(this, InGameMenuClass);
+	if (!ensure(InGameMenu != nullptr)) return;
+
+	InGameMenu->SetMenuInterface(this);
+	InGameMenu->Setup();
 }
 
 void UPuzzlePlatformsGameInstance::Host()
@@ -58,4 +75,12 @@ void UPuzzlePlatformsGameInstance::Join(const FString& Address)
 	if (!ensure(PC != nullptr)) return;
 
 	PC->ClientTravel(Address, ETravelType::TRAVEL_Absolute);
+}
+
+void UPuzzlePlatformsGameInstance::LoadMainMenu()
+{
+	APlayerController* PC = GetFirstLocalPlayerController();
+	if (!ensure(PC != nullptr)) return;
+
+	PC->ClientTravel("/Game/MenuSystem/MainMenu", ETravelType::TRAVEL_Absolute);
 }

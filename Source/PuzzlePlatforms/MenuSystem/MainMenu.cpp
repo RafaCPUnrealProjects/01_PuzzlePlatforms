@@ -8,32 +8,6 @@
 #include "GameFramework/PlayerController.h"
 
 
-
-
-void UMainMenu::SetMenuInterface(IMenuInterface* MenuInterface)
-{
-	this->MenuInterface = MenuInterface;
-}
-
-void UMainMenu::Setup()
-{
-	this->AddToViewport();
-
-	UWorld* World = GetWorld();
-	if (!ensure(World != nullptr)) return;
-	
-	APlayerController* PC = World->GetFirstPlayerController();
-	if (!ensure(PC != nullptr)) return;
-
-	FInputModeUIOnly InputModeData;
-	InputModeData.SetWidgetToFocus(this->TakeWidget());
-	InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-
-	PC->SetInputMode(InputModeData);
-	
-	PC->bShowMouseCursor = true;
-}
-
 bool UMainMenu::Initialize()
 {
 	bool Success = Super::Initialize();
@@ -51,28 +25,12 @@ bool UMainMenu::Initialize()
 	if (!ensure(JoinGameButton != nullptr)) return false;
 	JoinGameButton->OnClicked.AddDynamic(this, &UMainMenu::JoinGame);
 
+	if (!ensure(QuitGameButton != nullptr)) return false;
+	QuitGameButton->OnClicked.AddDynamic(this, &UMainMenu::QuitGameAndClose);
+
 	BackToMainMenu();
 
 	return true;
-}
-
-void UMainMenu::OnLevelRemovedFromWorld(ULevel* InLevel, UWorld* InWorld)
-{
-	Super::OnLevelRemovedFromWorld(InLevel, InWorld);
-
-	this->RemoveFromViewport();
-
-	if (!ensure(InWorld != nullptr)) return;
-
-	APlayerController* PC = InWorld->GetFirstPlayerController();
-	if (!ensure(PC != nullptr)) return;
-
-	FInputModeGameOnly InputModeData;
-	InputModeData.SetConsumeCaptureMouseDown(true);
-
-	PC->SetInputMode(InputModeData);
-
-	PC->bShowMouseCursor = false;
 }
 
 void UMainMenu::HostServer()
@@ -102,4 +60,15 @@ void UMainMenu::JoinGame()
 	if (!ensure(IPAddressField != nullptr)) return;
 	const FString& Address = IPAddressField->GetText().ToString();
 	MenuInterface->Join(Address);
+}
+
+void UMainMenu::QuitGameAndClose()
+{
+	UWorld* World = GetWorld();
+	if (!ensure(World != nullptr)) return;
+
+	APlayerController* PC = World->GetFirstPlayerController();
+	if (!ensure(PC != nullptr)) return;
+
+	PC->ConsoleCommand("quit");
 }

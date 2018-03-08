@@ -7,6 +7,8 @@
 #include "MenuSystem/MenuInterface.h"
 #include "PuzzlePlatformsGameInstance.generated.h"
 
+class UMainMenu;
+
 /**
  * 
  */
@@ -22,15 +24,23 @@ public:
 	virtual void Init() override;
 
 	UFUNCTION(BlueprintCallable)
-	void LoadMenu();
+	void LoadMenu(); 
+	
+	UFUNCTION(BlueprintCallable)
+	void InGameMenu();
 
 	UFUNCTION(Exec)
-	void Host();
+	void Host() override;
 	
 	UFUNCTION(Exec)
-	void Join(const FString& Address);
+	void Join(const FString& Address) override;
+
+	virtual void LoadMainMenu() override;
 
 private:
 
 	TSubclassOf<class UUserWidget> MenuClass;
+	TSubclassOf<class UUserWidget> InGameMenuClass;
+
+	UMainMenu* Menu;
 };
