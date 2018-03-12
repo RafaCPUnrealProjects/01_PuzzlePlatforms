@@ -12,6 +12,7 @@
 #include "PuzzlePlatformsGameInstance.generated.h"
 
 class UMainMenu;
+class UUserWidget;
 
 /**
  * 
@@ -41,10 +42,12 @@ public:
 
 	virtual void LoadMainMenu() override;
 
+	virtual void RefreshServerList() override;
+
 private:
 
-	TSubclassOf<class UUserWidget> MenuClass;
-	TSubclassOf<class UUserWidget> InGameMenuClass;
+	TSubclassOf<UUserWidget> MenuClass;
+	TSubclassOf<UUserWidget> InGameMenuClass;
 
 	UMainMenu* Menu;
 
