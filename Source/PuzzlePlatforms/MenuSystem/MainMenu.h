@@ -27,6 +27,8 @@ public:
 
 	void SetServerList(TArray<FString> ServeNames);
 
+	void SelectIndex(uint32 Index);
+
 protected:
 
 	virtual bool Initialize() override;
@@ -64,16 +66,18 @@ private:
 	void HostServer();
 
 	UFUNCTION()
-	void OpenJoinMenu();
-	
-	UFUNCTION()
-	void BackToMainMenu();
-
-	UFUNCTION()
 	void JoinServer();
 
 	UFUNCTION()
-	void QuitGameAndClose();
+	void OpenJoinMenu();
+	
+	UFUNCTION()
+	void OpenMainMenu();
+
+	UFUNCTION()
+	void QuitPressed();
 
 	TSubclassOf<UUserWidget> ServerRowClass;
+
+	TOptional<uint32> SelectedIndex;
 };

@@ -38,7 +38,7 @@ public:
 	void Host() override;
 
 	UFUNCTION(Exec)
-	void Join(const FString& Address) override;
+	void Join(uint32 Index) override;
 
 	virtual void LoadMainMenu() override;
 
@@ -58,6 +58,8 @@ private:
 	void OnFindSessionsComplete(bool bSuccess);
 
 	void CreateSession();
+
+	void OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result);
 
 	IOnlineSessionPtr SessionInterface;
 	IOnlineSubsystem* OSS;
