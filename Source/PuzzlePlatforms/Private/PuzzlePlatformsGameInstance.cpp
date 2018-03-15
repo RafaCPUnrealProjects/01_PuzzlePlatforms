@@ -13,6 +13,7 @@
 
 
 const static FName SESSION_NAME = TEXT("My Session Game");
+const static FName SERVER_NAME_SETTINGS_KEY = TEXT("ServerName");
 
 UPuzzlePlatformsGameInstance::UPuzzlePlatformsGameInstance(const FObjectInitializer& ObjectInitializer)
 {
@@ -62,8 +63,9 @@ void UPuzzlePlatformsGameInstance::InGameMenu()
 	InGameMenu->Setup();
 }
 
-void UPuzzlePlatformsGameInstance::Host()
+void UPuzzlePlatformsGameInstance::Host(FString ServerName)
 {
+	DesiredServerName = ServerName;
 	if (SessionInterface.IsValid())
 	{
 		FNamedOnlineSession* ExistingSession = SessionInterface->GetNamedSession(SESSION_NAME);
@@ -83,10 +85,18 @@ void UPuzzlePlatformsGameInstance::CreateSession()
 	if (SessionInterface.IsValid())
 	{
 		FOnlineSessionSettings SessionSettings;
-		SessionSettings.bIsLANMatch = false;
+		if (IOnlineSubsystem::Get()->GetSubsystemName() == "NULL")
+		{
+			SessionSettings.bIsLANMatch = true;
+		}
+		else
+		{
+			SessionSettings.bIsLANMatch = false;
+		}
 		SessionSettings.NumPublicConnections = 2;
 		SessionSettings.bShouldAdvertise = true;
 		SessionSettings.bUsesPresence = true;
+		SessionSettings.Set(SERVER_NAME_SETTINGS_KEY, DesiredServerName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 
 		SessionInterface->CreateSession(0, SESSION_NAME, SessionSettings);
 	}
@@ -134,6 +144,15 @@ void UPuzzlePlatformsGameInstance::RefreshServerList()
 	SessionSearch = MakeShareable(new FOnlineSessionSearch);
 	if (SessionSearch.IsValid())
 	{
+		if (IOnlineSubsystem::Get()->GetSubsystemName() == "NULL")
+		{
+			SessionSearch->bIsLanQuery = true;
+		}
+		else
+		{
+			SessionSearch->bIsLanQuery = false;
+		}
+
 		SessionSearch->MaxSearchResults = 100;
 		SessionSearch->TimeoutInSeconds = 100;
 		SessionSearch->bIsLanQuery = false;
@@ -180,13 +199,39 @@ void UPuzzlePlatformsGameInstance::OnFindSessionsComplete(bool bSuccess)
 	UE_LOG(LogTemp, Warning, TEXT("OnFindSessionsComplete"));
 	if (bSuccess && SessionSearch.IsValid() && Menu != nullptr)
 	{
-		TArray<FString> ServerNames;
-		for (const FOnlineSessionSearchResult& SessionResult : SessionSearch->SearchResults)
+		TArray<FServerData> ServerNames;
+		for (const FOnlineSessionSearchResult& SearchResult : SessionSearch->SearchResults)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Found session name: %s"), *SessionResult.GetSessionIdStr());
-			ServerNames.Add(SessionResult.GetSessionIdStr());
+			UE_LOG(LogTemp, Warning, TEXT("Found session name: %s"), *SearchResult.GetSessionIdStr());
+			FServerData Data;
+			Data.Name = SearchResult.GetSessionIdStr();
+			Data.MaxPlayers = SearchResult.Session.SessionSettings.NumPublicConnections;
+			Data.CurrentPlayers = Data.MaxPlayers - SearchResult.Session.NumOpenPublicConnections;
+			Data.HostUsername = SearchResult.Session.OwningUserName;
+			FString ServerName;
+			if (SearchResult.Session.SessionSettings.Get(SERVER_NAME_SETTINGS_KEY, ServerName))
+			{
+				Data.Name = ServerName;
+			}
+			else
+			{
+				Data.Name = "ServerName not found";
+			}
+
+			ServerNames.Add(Data);
 		}
 
+		if (ServerNames.Num() == 0)
+		{
+			FServerData DebugData;
+			DebugData.Name = "DebugData Name";
+			DebugData.CurrentPlayers = 1;
+			DebugData.MaxPlayers = 2;
+			DebugData.HostUsername = "DebugData Host";
+			
+			ServerNames.Add(DebugData);
+		}
+		
 		Menu->SetServerList(ServerNames);
 	}
 }

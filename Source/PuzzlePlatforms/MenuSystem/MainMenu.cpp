@@ -20,7 +20,7 @@ UMainMenu::UMainMenu(const FObjectInitializer& ObjectInitializer)
 	ServerRowClass = ServerRowBPClass.Class;
 }
 
-void UMainMenu::SetServerList(TArray<FString> ServerNames)
+void UMainMenu::SetServerList(TArray<FServerData> ServeNames)
 {
 	UWorld* World = this->GetWorld();
 	if (!ensure(World != nullptr)) return;
@@ -28,12 +28,15 @@ void UMainMenu::SetServerList(TArray<FString> ServerNames)
 	ServerList->ClearChildren();
 
 	uint32 i = 0;
-	for (const FString& ServerName : ServerNames)
+	for (const FServerData& ServerData : ServeNames)
 	{
 		UServerRow* Row = CreateWidget<UServerRow>(World, ServerRowClass);
 		if (!ensure(Row != nullptr)) return;
 
-		Row->ServerName->SetText(FText::FromString(ServerName));
+		Row->ServerName->SetText(FText::FromString(ServerData.Name));
+		Row->HostUsername->SetText(FText::FromString(ServerData.HostUsername));
+		Row->ConnectionFraction->SetText(FText::FromString(FString::Printf(TEXT("%d/%d"), ServerData.CurrentPlayers, ServerData.MaxPlayers)));
+
 		Row->Setup(this, i);
 		++i;
 
@@ -44,6 +47,7 @@ void UMainMenu::SetServerList(TArray<FString> ServerNames)
 void UMainMenu::SelectIndex(uint32 Index)
 {
 	SelectedIndex = Index;
+	UpdateChildren();
 }
 
 bool UMainMenu::Initialize()
@@ -75,7 +79,7 @@ void UMainMenu::HostServer()
 {
 	if (!ensure(MenuInterface != nullptr)) return;
 
-	MenuInterface->Host();
+	MenuInterface->Host("Hello");
 }
 
 void UMainMenu::JoinServer()
@@ -120,4 +124,16 @@ void UMainMenu::QuitPressed()
 	if (!ensure(PC != nullptr)) return;
 
 	PC->ConsoleCommand("quit");
+}
+
+void UMainMenu::UpdateChildren()
+{
+	for (int32 i = 0; i < ServerList->GetChildrenCount(); i++)
+	{
+		UServerRow* Row = Cast<UServerRow>(ServerList->GetChildAt(i));
+		if (Row != nullptr)
+		{
+			Row->bSelected = (SelectedIndex.IsSet() && SelectedIndex.GetValue() == i);
+		}
+	}
 }

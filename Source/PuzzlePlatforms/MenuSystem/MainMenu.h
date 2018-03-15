@@ -14,6 +14,21 @@ class UEditableTextBox;
 class UPanelWidget;
 class UUserWidget;
 
+
+/**
+ * Comment
+ */
+USTRUCT()
+struct FServerData
+{
+	GENERATED_USTRUCT_BODY()
+	
+	FString Name;
+	uint16 CurrentPlayers;
+	uint16 MaxPlayers;
+	FString HostUsername;
+};
+
 /**
  * 
  */
@@ -25,7 +40,7 @@ public:
 	
 	UMainMenu(const FObjectInitializer& ObjectInitializer);
 
-	void SetServerList(TArray<FString> ServeNames);
+	void SetServerList(TArray<FServerData> ServeNames);
 
 	void SelectIndex(uint32 Index);
 
@@ -76,6 +91,8 @@ private:
 
 	UFUNCTION()
 	void QuitPressed();
+
+	void UpdateChildren();
 
 	TSubclassOf<UUserWidget> ServerRowClass;
 
