@@ -51,16 +51,22 @@ protected:
 private:
 
 	UPROPERTY(meta = (BindWidget))
-	UButton* HostButton;
+	UButton* OpenHostMenuButton;
 
 	UPROPERTY(meta = (BindWidget))
-	UButton* JoinButton;
+	UButton* OpenJoinMenuButton;
 	
 	UPROPERTY(meta = (BindWidget))
-	UButton* BackButton;
+	UButton* BackFromJoinMenuButton;
+
+	UPROPERTY(meta = (BindWidget))
+	UButton* BackFromHostMenuButton;
 
 	UPROPERTY(meta = (BindWidget))
 	UButton* JoinGameButton;
+	
+	UPROPERTY(meta = (BindWidget))
+	UButton* HostGameButton;
 	
 	UPROPERTY(meta = (BindWidget))
 	UButton* QuitGameButton;
@@ -72,11 +78,17 @@ private:
 	UWidget* JoinMenu;
 
 	UPROPERTY(meta = (BindWidget))
-	UWidget* MainMenu;
+	UWidget* MainMenu; 
+	
+	UPROPERTY(meta = (BindWidget))
+	UWidget* HostMenu;
 
 	UPROPERTY(meta = (BindWidget))
 	UPanelWidget* ServerList;
-
+	
+	UPROPERTY(meta = (BindWidget))
+	UEditableTextBox* ServerHostName;
+	
 	UFUNCTION()
 	void HostServer();
 
@@ -86,6 +98,9 @@ private:
 	UFUNCTION()
 	void OpenJoinMenu();
 	
+	UFUNCTION()
+	void OpenHostMenu();
+
 	UFUNCTION()
 	void OpenMainMenu();
 

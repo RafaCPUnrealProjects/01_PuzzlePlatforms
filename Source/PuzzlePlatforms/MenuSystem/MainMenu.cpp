@@ -55,18 +55,24 @@ bool UMainMenu::Initialize()
 	bool Success = Super::Initialize();
 	if (!Success) return false;
 
-	if (!ensure(HostButton != nullptr)) return false;
-	HostButton->OnClicked.AddDynamic(this, &UMainMenu::HostServer);
+	if (!ensure(OpenHostMenuButton != nullptr)) return false;
+	OpenHostMenuButton->OnClicked.AddDynamic(this, &UMainMenu::OpenHostMenu);
 
-	if (!ensure(JoinButton != nullptr)) return false;
-	JoinButton->OnClicked.AddDynamic(this, &UMainMenu::OpenJoinMenu);
+	if (!ensure(OpenJoinMenuButton != nullptr)) return false;
+	OpenJoinMenuButton->OnClicked.AddDynamic(this, &UMainMenu::OpenJoinMenu);
 
-	if (!ensure(BackButton != nullptr)) return false;
-	BackButton->OnClicked.AddDynamic(this, &UMainMenu::OpenMainMenu);
+	if (!ensure(BackFromJoinMenuButton != nullptr)) return false;
+	BackFromJoinMenuButton->OnClicked.AddDynamic(this, &UMainMenu::OpenMainMenu);
+
+	if (!ensure(BackFromJoinMenuButton != nullptr)) return false;
+	BackFromHostMenuButton->OnClicked.AddDynamic(this, &UMainMenu::OpenMainMenu);
 
 	if (!ensure(JoinGameButton != nullptr)) return false;
 	JoinGameButton->OnClicked.AddDynamic(this, &UMainMenu::JoinServer);
-
+	
+	if (!ensure(JoinGameButton != nullptr)) return false;
+	HostGameButton->OnClicked.AddDynamic(this, &UMainMenu::HostServer);
+	
 	if (!ensure(QuitGameButton != nullptr)) return false;
 	QuitGameButton->OnClicked.AddDynamic(this, &UMainMenu::QuitPressed);
 
@@ -78,8 +84,8 @@ bool UMainMenu::Initialize()
 void UMainMenu::HostServer()
 {
 	if (!ensure(MenuInterface != nullptr)) return;
-
-	MenuInterface->Host("Hello");
+	FString ServerName = ServerHostName->GetText().ToString();
+	MenuInterface->Host(ServerName);
 }
 
 void UMainMenu::JoinServer()
@@ -106,6 +112,13 @@ void UMainMenu::OpenJoinMenu()
 	{
 		MenuInterface->RefreshServerList();
 	}
+}
+
+void UMainMenu::OpenHostMenu()
+{
+	if (!ensure(MenuSwitcher != nullptr)) return;
+	if (!ensure(HostMenu != nullptr)) return;
+	MenuSwitcher->SetActiveWidget(HostMenu);
 }
 
 void UMainMenu::OpenMainMenu()
