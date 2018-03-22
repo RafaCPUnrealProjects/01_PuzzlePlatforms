@@ -8,6 +8,7 @@ public class PuzzlePlatformsTarget : TargetRules
 	public PuzzlePlatformsTarget(TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Game;
+        bUsesSteam = true;
 		ExtraModuleNames.Add("PuzzlePlatforms");
 	}
 }
